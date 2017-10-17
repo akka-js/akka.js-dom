@@ -1,0 +1,25 @@
+{
+  "name": "akkajs-dom",
+  "version": "0.0.1",
+  "description": "Akka.Js Dom framework extension",
+  "author": "Andrea Peruffo",
+  "license": "MIT",
+  "main": "./js/main.out.js",
+  "dependencies": {
+    "akkajs": "latest",
+    "virtual-dom": "latest",
+    "vdom-as-json": "latest",
+    "vdom-serialized-patch": "latest"
+  },
+  "scripts": {
+    "start": "webpack --watch",
+    "build": "webpack",
+    "prepublish": "webpack"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-react-jsx": "latest",
+    "webpack": "^3.5.6"
+  }
+}
