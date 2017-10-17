@@ -21,5 +21,18 @@
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-react-jsx": "latest",
     "webpack": "^3.5.6"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akka-js/akka.js-dom.git"
+  },
+  "keywords": [
+    "scalajs",
+    "akka",
+    "akkajs",
+    "actor",
+    "akkajs-dom",
+    "workers",
+    "dom"
+  ],
 }
