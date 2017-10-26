@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require("path")
 module.exports = {
   entry: {
     main: "./main.js"
@@ -11,8 +11,14 @@ module.exports = {
   module: {
     rules: [
       {
+        enforce: "pre",
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: "eslint-loader"
+      },
+      {
         test: /\.jsx?$/,
-        loader: 'babel-loader',
+        loader: "babel-loader"
       }
     ]
   }

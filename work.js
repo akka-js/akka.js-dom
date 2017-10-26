@@ -1,20 +1,19 @@
-const akkajs = require('akkajs')
-const diff = require('virtual-dom/diff')
-const createElement = require('virtual-dom/create-element')
+const akkajs = require("akkajs")
+const diff = require("virtual-dom/diff")
 
-const toJson = require('vdom-as-json').toJson
-const serializePatch = require('vdom-serialized-patch/serialize')
+const toJson = require("vdom-as-json").toJson
+const serializePatch = require("vdom-serialized-patch/serialize")
 
 const systems = new Map()
 
 /* initialization is location aware local / worker / sharedworker */
 class LocalPort {
-  constructor() {
+  constructor () {
     this.postMessage = this.postMessage.bind(this)
     this.onmessage = this.onmessage.bind(this)
   }
-  onmessage(msg) { throw "local akkajs-dom onmessage should be assigned" }
-  postMessage(e) {
+  onmessage (msg) { throw "local akkajs-dom onmessage should be assigned" }
+  postMessage (e) {
     localOnMessage({"data": e})
   }
 }
@@ -22,7 +21,7 @@ class LocalPort {
 let localPort = undefined
 const sharedWorkerPort = {}
 
-const localOnMessage =  function(e) {
+const localOnMessage = function (e) {
   const sys = systems.get(getSystemPath(e.data.id))
   sys.select(e.data.id).tell(e.data.value)
 }
@@ -31,16 +30,16 @@ let localPostMessage = undefined
 let binded = false
 try {
   if (global instanceof SharedWorkerGlobalScope) {
-    onconnect = function(e) {
+    onconnect = function (e) {
       sharedWorkerPort.port = e.ports[0]
 
       sharedWorkerPort.port.onmessage = localOnMessage
 
-      localPostMessage = function(e) {sharedWorkerPort.port.postMessage(e)}
+      localPostMessage = function (e) { sharedWorkerPort.port.postMessage(e) }
 
-      //just helpers ...
-      sharedWorkerPort.postMessage = function(e) {sharedWorkerPort.port.postMessage(e)}
-      sharedWorkerPort.tellTo = function(rec, msg) {
+      // just helpers ...
+      sharedWorkerPort.postMessage = function (e) { sharedWorkerPort.port.postMessage(e) }
+      sharedWorkerPort.tellTo = function (rec, msg) {
         sharedWorkerPort.port.postMessage({
           "id": rec,
           "value": msg
@@ -61,20 +60,19 @@ try {
 
 if (!binded) {
   localPort = new LocalPort()
-  localPostMessage = function(e) {localPort.onmessage({"data": e})}
+  localPostMessage = function (e) { localPort.onmessage({"data": e}) }
 }
 
-
-//helper function
-const getSystemPath = function(actorPath) {
-  const splitted = actorPath.split('/')
+// helper function
+const getSystemPath = function (actorPath) {
+  const splitted = actorPath.split("/")
   return (splitted[0] + "//" + splitted[2] + "/" + splitted[3])
 }
 
 /* dom actor implementation */
 
 class DomActor extends akkajs.Actor {
-  constructor(parentNode) {
+  constructor (parentNode) {
     super()
     // internal usage
     this.parentNode = parentNode
@@ -95,7 +93,7 @@ class DomActor extends akkajs.Actor {
     // events preferred, but register is still available
     this.register = this.register.bind(this)
   }
-  update(newValue) {
+  update (newValue) {
     const newNode = this.render(newValue)
     const serializedPatch =
       serializePatch(diff(this.node, newNode))
@@ -104,7 +102,7 @@ class DomActor extends akkajs.Actor {
     localPostMessage(serializedPatch)
     this.node = newNode
   }
-  mount() {
+  mount () {
     if (this.node === undefined) {
       this.node = this.render()
     }
@@ -121,8 +119,8 @@ class DomActor extends akkajs.Actor {
 
     this.postMount()
   }
-  events() { }
-  register(eventName, eventFunction) {
+  events () { }
+  register (eventName, eventFunction) {
     const reg = {}
     reg.register = eventName
     reg.function = eventFunction.name
@@ -131,7 +129,7 @@ class DomActor extends akkajs.Actor {
     systems.set(getSystemPath(this.path()), this.system())
     localPostMessage(reg)
   }
-  preStart() {
+  preStart () {
     if (this.parentNode === undefined) {
       const lio = this.path().lastIndexOf("/")
       this.parentNode = this.path().substring(0, lio)
@@ -139,10 +137,10 @@ class DomActor extends akkajs.Actor {
 
     this.mount()
   }
-  postStop() {
+  postStop () {
     localPostMessage({"remove": this.path()})
   }
-  postMount() { }
+  postMount () { }
 }
 
 module.exports = {
