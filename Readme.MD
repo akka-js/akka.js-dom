@@ -11,7 +11,7 @@ ___Featuring:___
   - Page / application separation
   - Location transparency for application
   - Real parallelism (multithread via Workers)
-  - Asynchronous
+  - Fully asynchronous
 
 ## Quick start
 
