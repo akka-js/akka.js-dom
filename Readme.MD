@@ -1,6 +1,8 @@
 
 # Akka.Js DOM
 
+[![NPM](https://nodei.co/npm/akkajs-dom.png)](https://nodei.co/npm/akkajs-dom/)
+
 Minimalistic Framework for frontend applications built on top of [Akka.js](https://www.npmjs.com/package/akkajs)
 
 ___Featuring:___
@@ -41,9 +43,9 @@ and they are intended to be kept separated (in different compilation units possi
 
 `UiManager` is the minimal "in-page" interface, with an extremely small footprint that operates on the DOM, it has to be loaded straight in page and the constructor accept, as for now, 3 possible objects:
 
-  1- a module that exports a `localPort`, it's purpose is mainly for debug or for few elements that needs to be displayed asap in page.
-  2- a `Worker`.
-  3- a `SharedWorker`.
+  1. a module that exports a `localPort`, it's purpose is mainly for debug or for few elements that needs to be displayed asap in page
+  2. a `Worker`
+  3. a `SharedWorker`
 
 all you need to do is to instantiate one `UiManager` per component you have to visualize in page.
 
