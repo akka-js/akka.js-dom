@@ -28,9 +28,9 @@ and you will get the result.
 
 The examples are intended to be considered as "live" and you are encouraged to play with them!
 
-## Basic concept
+## Overview
 
-We assume you have some basic understanding of basic Akka.Js concepts.
+***We assume you have some understanding of basic Akka.Js concepts.***
 
 Akka.Js DOM has 2 core components:
 
