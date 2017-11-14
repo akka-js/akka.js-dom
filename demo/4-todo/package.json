@@ -1,0 +1,22 @@
+{
+  "name": "akkajs_dom_todo",
+  "version": "1.0.0",
+  "author": "Andrea Peruffo",
+  "license": "MIT",
+  "dependencies": {
+    "akkajs-dom": "latest"
+  },
+  "scripts": {
+    "start": "webpack --watch",
+    "build": "webpack",
+    "serve": "serve . -p 3000",
+    "fmt": "eslint --fix *.js"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-react-jsx": "latest",
+    "serve": "^6.1.0",
+    "webpack": "^3.5.6"
+  }
+}
