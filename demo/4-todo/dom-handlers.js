@@ -8,7 +8,7 @@ const getValue = function (event) {
 
 const getKill = function (event) {
   if (event.srcElement.type === "submit") {
-    return { "kill": true}
+    return { "kill": true }
   }
 }
 
