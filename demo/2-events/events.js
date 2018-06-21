@@ -1,7 +1,7 @@
 /** @jsx h */
 const h = require("virtual-dom/h")
 const { ActorSystem } = require("akkajs")
-const { DomActor } = require("akkajs-dom/work")
+const { DomActor, localPort } = require("akkajs-dom/work")
 
 const domHandlers = require("./dom-handlers.js")
 
@@ -10,17 +10,17 @@ const system = ActorSystem.create()
 class EchoKeys extends DomActor {
   constructor () {
     super("root")
+    this.status = []
   }
   render (value) {
-    if (this.status === undefined || value === undefined) {
-      this.status = ""
-    } else {
-      this.status += value
+    console.log("event "+value)
+    if (value !== undefined) {
+      this.status.push(<li>{value}</li>)
     }
 
     return <div>{[
-      <label>click me</label>,
-      <p>{this.status}</p>
+      <button>click me</button>,
+      <ul>{this.status}</ul>
     ]}</div>
   }
   events () {
@@ -32,3 +32,7 @@ class EchoKeys extends DomActor {
 }
 
 system.spawn(new EchoKeys())
+
+module.exports = {
+  localPort
+}

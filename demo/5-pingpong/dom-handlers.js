@@ -1,7 +1,8 @@
 
 const click = function (event) {
-  if (event.target.nodeName === "BUTTON")
-    return "click"
+  return {
+    "click": true
+  }
 }
 
 module.exports = {

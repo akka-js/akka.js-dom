@@ -1,7 +1,7 @@
 /** @jsx h */
 const h = require("virtual-dom/h")
 const { ActorSystem } = require("akkajs")
-const { DomActor } = require("akkajs-dom/work")
+const { DomActor, localPort } = require("akkajs-dom/work")
 
 const domHandlers = require("./dom-handlers.js")
 
@@ -9,7 +9,7 @@ const system = ActorSystem.create()
 
 class Input extends DomActor {
   render () {
-    return <input placeholder={"type and ENTER"} value="" />
+    return <input placeholder={"type and press ENTER"} value="" />
   }
   events () {
     return { "keyup": domHandlers.getValue }
@@ -28,9 +28,9 @@ class Elem extends DomActor {
     this.text = text
   }
   render () {
-    return <li>{[
+    return <li style="margin:2px;">{[
       this.text,
-      <button>X</button>
+      <button style="margin-left:10px;">X</button>
     ]}</li>
   }
   events () {
@@ -59,3 +59,7 @@ class ToDoList extends DomActor {
 }
 
 system.spawn(new ToDoList())
+
+module.exports = {
+  localPort
+}

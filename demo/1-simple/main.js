@@ -1,4 +1,4 @@
-const { UiManager } = require("akkajs-dom/page")
+const { UiManager } = require("akkajs-dom/page.js")
 
 new UiManager(
   require("./simple.js")

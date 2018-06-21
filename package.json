@@ -1,6 +1,6 @@
 {
   "name": "akkajs-dom",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Akka.Js Dom framework extension",
   "author": "Andrea Peruffo",
   "license": "MIT",

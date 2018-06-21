@@ -1,7 +1,7 @@
 /** @jsx h */
 const h = require("virtual-dom/h")
 const { ActorSystem } = require("akkajs")
-const { DomActor } = require("akkajs-dom/work")
+const { DomActor, localPort } = require("akkajs-dom/work")
 
 const system = ActorSystem.create()
 
@@ -29,8 +29,9 @@ class Node extends DomActor {
     )
   }
   render () {
-    return <ul>{[
-      Array(this.level).fill().map(() => { return <li>{this.level}</li> } )
+    return <ul className="tree">{[
+      Array(this.level - 1).fill().map(() => { return <li>{this.level}</li> } ),
+      <li className="last">{this.level}</li>
     ]}</ul>
   }
   receive (msg) {
@@ -41,3 +42,7 @@ class Node extends DomActor {
 }
 
 system.spawn(new RootNode())
+
+module.exports = {
+  localPort
+}

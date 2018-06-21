@@ -25,7 +25,6 @@ const localOnMessage = function (e) {
   const sys = systems.get(getSystemPath(e.data.id))
   sys.select(e.data.id).tell(e.data.value)
 }
-let localPostMessage = undefined
 
 let binded = false
 try {
@@ -38,13 +37,13 @@ try {
       localPostMessage = function (e) { sharedWorkerPort.port.postMessage(e) }
 
       // just helpers ...
-      sharedWorkerPort.postMessage = function (e) { sharedWorkerPort.port.postMessage(e) }
-      sharedWorkerPort.tellTo = function (rec, msg) {
-        sharedWorkerPort.port.postMessage({
-          "id": rec,
-          "value": msg
-        })
-      }
+      // sharedWorkerPort.postMessage = function (e) { sharedWorkerPort.port.postMessage(e) }
+      // sharedWorkerPort.tellTo = function (rec, msg) {
+      //   sharedWorkerPort.port.postMessage({
+      //     "id": rec,
+      //     "value": msg
+      //   })
+      // }
     }
     binded = true
   }
@@ -147,8 +146,142 @@ class DomActor extends akkajs.Actor {
   postUnmount () { }
 }
 
+/* WorkerProxy implementation */
+
+class WorkerProxy extends akkajs.Actor {
+  constructor () {
+    super()
+    this.receive = this.receive.bind(this)
+    this.ports = new Map()
+  }
+  preStart () {
+    localPostMessage("starting")
+    const proxyRegistration = {
+      "id": this.path(),
+      "proxyRegistration": true
+    }
+
+    systems.set(getSystemPath(this.path()), this.system())
+    localPostMessage(proxyRegistration)
+  }
+  receive (msg) {
+    if (msg !== undefined) {
+      if (msg.channelOpen !== undefined) {
+        localPostMessage(`opening channel ${msg.channelOpen}`)
+        localPostMessage({
+          "id": this.path(),
+          "channelOpen": msg.channelOpen
+        })
+      } else if (msg.channelName !== undefined) {
+        if (this.ports.has(msg.channelName)) {
+          this.ports.get(msg.channelName).tell({update: msg.channelPort})
+        } else {
+          const child = this.spawn(new Channel(msg.channelPort))
+          this.ports.set(msg.channelName, child)
+        }
+      } else if (msg.getChannel !== undefined) {
+        msg.answerTo.tell({channel: this.ports.get(msg.getChannel)})
+      } else {
+        localPostMessage(`unmatched proxy message ${msg}`)
+      }
+    }
+  }
+}
+
+class Channel extends akkajs.Actor {
+  constructor (port) {
+    super()
+    this.receive = this.receive.bind(this)
+    this.setupPort = this.setupPort.bind(this)
+    this.portReceive = this.portReceive.bind(this)
+    this.port = port
+    this.subscribers = []
+  }
+  portReceive (msg) {
+    for (let sub of this.subscribers) {
+      sub.tell(msg.data)
+    }
+  }
+  setupPort (port) {
+    port.onmessage = this.portReceive
+  }
+  preStart () {
+    this.setupPort(this.port)
+  }
+  receive (msg) {
+    if (msg !== undefined) {
+      if (msg.update !== undefined) {
+        this.port = msg.update
+        this.setupPort(this.port)
+      } else if (msg.subscribe !== undefined) {
+        localPostMessage(`subscribing ${msg.subscribe}`)
+        this.subscribers.push(msg.subscribe)
+      } else {
+        localPostMessage(`Channel received unknown ${msg} in receive ${this.port}`)
+        this.port.postMessage(msg)
+      }
+    }
+  }
+}
+
+// class WorkerProxy extends akkajs.Actor {
+//   constructor (workerName, pollTime = 1000) {
+//     super()
+//     this.workerName = workerName
+//     this.pollTime = pollTime
+//     this.receive = this.receive.bind(this)
+//     this.triggerTimeout = this.triggerTimeout.bind(this)
+//     this.performRequest = this.performRequest.bind(this)
+//     this.operative = this.operative.bind(this)
+//   }
+//   triggerTimeout () {
+//     this.timeout = setTimeout(
+//       this.self().tell({"timeout": true}),
+//       this.pollTime
+//     )
+//   }
+//   performRequest () {
+//     this.triggerTimeout()
+//     return setTimeout(
+//       this.workerReq,
+//       this.pollTime
+//     )
+//   }
+//   preStart () {
+//     this.workerReq = {
+//       "id": this.path(),
+//       "worker": this.workerName
+//     }
+
+//     this.triggerTimeout()
+//     systems.set(getSystemPath(this.path()), this.system())
+//     localPostMessage(this.workerReq)
+//   }
+//   receive (msg) {
+//     try {
+//       clearTimeout(this.timeout)
+//     } catch (e) {}
+//     if (msg !== undefined && msg.timeout !== undefined) {
+//       localPostMessage(`${this.workerName} available ${msg}`)
+//       this.remotePort = msg
+//       this.become(this.operative)
+//     } else {
+//       this.performRequest()
+//     }
+//   }
+//   operative (msg) {
+//     if (msg instanceof MessagePort) {
+//       this.port = msg
+//       localPostMessage(`messageport registerd ${msg}`)
+//     } else if (msg !== undefined) {
+//       this.port.postMessage(msg)
+//     }
+//     // remotePort.postMessage("PIPPO")
+//   }
+// }
+
 module.exports = {
   DomActor,
   localPort,
-  sharedWorkerPort
+  WorkerProxy
 }
