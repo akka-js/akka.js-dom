@@ -5,9 +5,13 @@ const { localPort, WorkerProxy} = require("../../work")
 const system = akkajs.ActorSystem.create("ping")
 
 const proxy = system.spawn(new WorkerProxy())
-proxy.tell({
-  channelOpen: "pong"
-})
+setTimeout(() => {
+    proxy.tell({
+      channelOpen: "pong"
+    })
+  },
+  500
+)
 
 class Something extends akkajs.Actor {
   constructor () {

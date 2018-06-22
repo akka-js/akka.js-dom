@@ -167,7 +167,9 @@ class WorkerProxy extends akkajs.Actor {
   receive (msg) {
     if (msg !== undefined) {
       if (msg.channelOpen !== undefined) {
-        localPostMessage(`opening channel ${msg.channelOpen}`)
+        // const child = this.spawn(new Channel(msg.channelPort))
+        // this.ports.set(msg.channelName, child)
+
         localPostMessage({
           "id": this.path(),
           "channelOpen": msg.channelOpen
@@ -187,6 +189,19 @@ class WorkerProxy extends akkajs.Actor {
     }
   }
 }
+
+// class Channel extends akkajs.Actor {
+//   constructor (channeloOpen) {
+//     this.channelOpen = channelOpen
+//     this.receive = this.recewive.bind(this)
+//   }
+//   preStart () {
+//     localPostMessage({
+//       "id": this.path(),
+//       "channelOpen": msg.channelOpen
+//     })
+//   }
+// }
 
 class Channel extends akkajs.Actor {
   constructor (port) {

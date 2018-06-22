@@ -8,8 +8,9 @@ new UiManager(
 )
 
 new UiManager(
-  // require("./pingpong.js"),
-  new SharedWorker("./js/pong.out.js", { name : "pong" }),
+  require("./pong.js"),
+  // new Worker("./js/pong.out.js", { name : "pong" }),
+  // new SharedWorker("./js/pong.out.js", { name : "pong" }),
   require("./dom-handlers.js"),
   defaultUnamtchedFunction,
   "pong"

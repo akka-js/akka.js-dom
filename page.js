@@ -99,9 +99,15 @@ class UiManager {
       console.log("registering ", this.name, this.worker.port)
       sharedWorkers.set(this.name, this.worker.port)
     } else if (worker instanceof Worker) {
-      this.worker.onmessage = uiManagement(this.worker, this.handlers, this.unmatchedFun)
+      this.worker.onmessage = uiManagement(this.worker, this.handlers, this.unmatchedFun, this.name)
+
+      console.log("registering ", this.name, this.worker)
+      sharedWorkers.set(this.name, this.worker)
     } else if (this.worker.localPort !== undefined) {
-      this.worker.localPort.onmessage = uiManagement(this.worker.localPort, this.handlers, this.unmatchedFun)
+      this.worker.localPort.onmessage = uiManagement(this.worker.localPort, this.handlers, this.unmatchedFun, this.name)
+
+      console.log("registering ", this.name, this.worker.localPort)
+      sharedWorkers.set(this.name, this.worker.localPort)
     } else {
       throw "Invalid Worker in UiManager, should be one of Worker, SharedWorker, or a module with localPort exported"
     }
