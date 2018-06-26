@@ -1,51 +1,27 @@
 /** @jsx h */
 const akkajs = require("akkajs")
-const { localPort, WorkerProxy} = require("../../work")
+const { localPort, WorkerProxy, ChannelClient, ConnectedChannel} = require("../../work")
 
 const system = akkajs.ActorSystem.create("ping")
 
 const proxy = system.spawn(new WorkerProxy())
-setTimeout(() => {
-    proxy.tell({
-      channelOpen: "pong"
-    })
-  },
-  500
-)
 
-class Something extends akkajs.Actor {
-  constructor () {
-    super()
-    this.receive = this.receive.bind(this)
-    this.operative = this.operative.bind(this)
-  }
-  preStart () {
-    proxy.tell({
-      getChannel: "pong",
-      answerTo: this.self()
-    })
-  }
-  receive (msg) {
-    if (msg !== undefined) {
-      if (msg.channel !== undefined) {
-        this.pong = msg.channel
-        msg.channel.tell({subscribe: this.self()})
-        this.become(this.operative)
-        //setTimeout( function () {
-          msg.channel.tell("CIAO")
-        //}, 1000)
-      }
-    }
+class PongChannel extends ConnectedChannel {
+  postAvailable () {
+    console.log("POST AVAILABLE")
+    this.count = 10
+    this.channel.tell("PING")
   }
   operative (msg) {
-    proxy.tell(`PING received: ${msg}`)
+    console.log("message is ", msg)
+    if (this.count > 0) {
+      this.channel.tell("PING " + this.count)
+      this.count -= 1
+    }
   }
 }
 
-// have to proper handle this ...
-setTimeout( function () {
-  system.spawn(new Something())
-}, 1000)
+pong = system.spawn(new PongChannel(proxy, "pong"))
 
 module.exports = {
   localPort

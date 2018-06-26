@@ -52,11 +52,8 @@ const uiManagement = function (worker, handlers, orElse, name) {
       }, false)
     // workers communication management
     } else if (e.data.proxyRegistration !== undefined) {
-      console.log(`registering ${name}`)
       proxies.set(name, e.data.id)
     } else if (e.data.channelOpen !== undefined) {
-      console.log(`registering channel ${e.data.channelOpen}`)
-
       const port = sharedWorkers.get(e.data.channelOpen)
       const channel = new MessageChannel()
       worker.postMessage({
@@ -73,7 +70,6 @@ const uiManagement = function (worker, handlers, orElse, name) {
           channelPort: channel.port2
         }
       }, [channel.port2])
-      console.log(`registered channel ${e.data.channelOpen}`)
     } else {
       orElse(e)
     }
@@ -95,18 +91,12 @@ class UiManager {
     }
     if (worker instanceof SharedWorker) {
       this.worker.port.onmessage = uiManagement(this.worker.port, this.handlers, this.unmatchedFun, this.name)
-
-      console.log("registering ", this.name, this.worker.port)
       sharedWorkers.set(this.name, this.worker.port)
     } else if (worker instanceof Worker) {
       this.worker.onmessage = uiManagement(this.worker, this.handlers, this.unmatchedFun, this.name)
-
-      console.log("registering ", this.name, this.worker)
       sharedWorkers.set(this.name, this.worker)
     } else if (this.worker.localPort !== undefined) {
       this.worker.localPort.onmessage = uiManagement(this.worker.localPort, this.handlers, this.unmatchedFun, this.name)
-
-      console.log("registering ", this.name, this.worker.localPort)
       sharedWorkers.set(this.name, this.worker.localPort)
     } else {
       throw "Invalid Worker in UiManager, should be one of Worker, SharedWorker, or a module with localPort exported"
