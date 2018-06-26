@@ -14,10 +14,12 @@ class PongChannel extends ConnectedChannel {
   }
   operative (msg) {
     console.log("message is ", msg)
-    if (this.count > 0) {
-      this.channel.tell("PING " + this.count)
-      this.count -= 1
-    }
+    // if (msg != undefined && msg instanceof String && msg.startsWith("PONG")) {
+      if (this.count > 0) {
+        this.channel.tell("PING " + this.count)
+        this.count -= 1
+      }
+    // }
   }
 }
 

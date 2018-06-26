@@ -6,8 +6,9 @@ const createElement = require("virtual-dom/create-element")
 const fromJson = require("vdom-as-json").fromJson
 const applyPatch = require("vdom-serialized-patch/patch")
 
-const sharedWorkers = new Map()
+const workers = new Map()
 const proxies = new Map()
+const channels = new Map()
 
 const uiManagement = function (worker, handlers, orElse, name) {
   const elems = new Map()
@@ -54,22 +55,29 @@ const uiManagement = function (worker, handlers, orElse, name) {
     } else if (e.data.proxyRegistration !== undefined) {
       proxies.set(name, e.data.id)
     } else if (e.data.channelOpen !== undefined) {
-      const port = sharedWorkers.get(e.data.channelOpen)
-      const channel = new MessageChannel()
-      worker.postMessage({
-        id: e.data.id,
-        value: {
-          channelName: e.data.channelOpen,
-          channelPort: channel.port1
-        }
-      }, [channel.port1])
-      port.postMessage({
-        id: proxies.get(e.data.channelOpen),
-        value: {
-          channelName: name,
-          channelPort: channel.port2
-        }
-      }, [channel.port2])
+
+      if (channels.has(name + e.data.channelOpen)) {
+        const channel = channels.get(name + e.data.channelOpen)
+
+        worker.postMessage({
+          id: e.data.id,
+          value: {
+            channelName: e.data.channelOpen,
+            channelPort: channel.port2
+          }
+        }, [channel.port2])
+      } else {
+        const channel = new MessageChannel()
+        channels.set(e.data.channelOpen + name, channel)
+  
+        worker.postMessage({
+          id: e.data.id,
+          value: {
+            channelName: e.data.channelOpen,
+            channelPort: channel.port1
+          }
+        }, [channel.port1])
+      }
     } else {
       orElse(e)
     }
@@ -91,13 +99,13 @@ class UiManager {
     }
     if (worker instanceof SharedWorker) {
       this.worker.port.onmessage = uiManagement(this.worker.port, this.handlers, this.unmatchedFun, this.name)
-      sharedWorkers.set(this.name, this.worker.port)
+      workers.set(this.name, this.worker.port)
     } else if (worker instanceof Worker) {
       this.worker.onmessage = uiManagement(this.worker, this.handlers, this.unmatchedFun, this.name)
-      sharedWorkers.set(this.name, this.worker)
+      workers.set(this.name, this.worker)
     } else if (this.worker.localPort !== undefined) {
       this.worker.localPort.onmessage = uiManagement(this.worker.localPort, this.handlers, this.unmatchedFun, this.name)
-      sharedWorkers.set(this.name, this.worker.localPort)
+      workers.set(this.name, this.worker.localPort)
     } else {
       throw "Invalid Worker in UiManager, should be one of Worker, SharedWorker, or a module with localPort exported"
     }

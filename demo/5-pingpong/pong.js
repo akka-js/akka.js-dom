@@ -11,8 +11,10 @@ class PingChannel extends ConnectedChannel {
     this.count = 0
   }
   operative (msg) {
-    this.channel.tell("PONG " + this.count)
-    this.count += 1
+    // if (msg != undefined && msg instanceof String && msg.startsWith("PING")) {
+      this.channel.tell("PONG " + this.count)
+      this.count += 1
+    // }
   }
 }
 

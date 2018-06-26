@@ -265,15 +265,13 @@ class ConnectedChannel extends ChannelClient {
   constructor (proxy, channelName) {
     super(proxy, channelName)
     this.checkConnection = this.checkConnection.bind(this)
+    this.preOperative = this.preOperative.bind(this)
     this.postAvailable = this.postAvailable.bind(this)
     this.operative = this.operative.bind(this)
   }
   postConnect () {
     this.become(this.checkConnection)
-    setTimeout(
-      () => this.channel.tell({available: true}),
-      50
-    )
+    this.channel.tell({available: true})
     this.timeout = setTimeout(
       () => this.self().tell({retry: true}),
       100
@@ -281,29 +279,43 @@ class ConnectedChannel extends ChannelClient {
   }
   checkConnection (msg) {
     clearTimeout(this.timeout)
-    console.log("message is ", msg)
+    console.log("INNER message is ", msg)
     if (msg !== undefined) {
       if (msg.retry) {
-        setTimeout(
-          () => this.channel.tell({available: true}),
-          50
-        )
+        this.channel.tell({available: true})
         this.timeout = setTimeout(
           () => this.self().tell({retry: true}),
           100
         )
       } else if (msg.available !== undefined) {
-        setTimeout(
-          () => this.channel.tell({connected: true}),
-          50
-        )
-        this.timeout = setTimeout(
-          () => this.self().tell({retry: true}),
-          100
-        )
-      } else if (msg.connected !== undefined) {
+        // this.become(this.preOperative)
         this.postAvailable()
-        this.become(this.operative)        
+        this.become(this.operative)
+      }
+    }
+    //   } else if (msg.available !== undefined) {
+    //     this.channel.tell({connected: true})
+    //     // setTimeout(
+    //     //   () => this.channel.tell({connected: true}),
+    //     //   50
+    //     // )
+    //     this.timeout = setTimeout(
+    //       () => this.self().tell({retry: true}),
+    //       100
+    //     )
+    //   } else if (msg.connected !== undefined) {
+    //     this.postAvailable()
+    //     this.become(this.operative)        
+    //   }
+    // }
+  }
+  preOperative (msg) {
+    if (msg !== undefined) {
+      // TODO check why they keep retained in the queue
+      if (msg.retry || msg.available) { } else {
+        this.postAvailable()
+        this.become(this.operative)
+        this.self().tell(msg)
       }
     }
   }
