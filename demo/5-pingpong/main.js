@@ -1,18 +1,20 @@
-const { UiManager, defaultUnmatchedFunction } = require("../../page")
+const { UiManager } = require("../../page")
 
 new UiManager(
   // require("./ping.js"),
   new SharedWorker("./js/ping.out.js"),
-  require("./dom-handlers.js"),
-  defaultUnmatchedFunction,
-  "ping"
+  {
+    name: "ping",
+    handlers: require("./dom-handlers.js")
+  }
 )
 
 new UiManager(
-  require("./pong.js"),
-  // new Worker("./js/pong.out.js"),
+  // require("./pong.js"),
+  new Worker("./js/pong.out.js"),
   // new SharedWorker("./js/pong.out.js"),
-  require("./dom-handlers.js"),
-  defaultUnmatchedFunction,
-  "pong"
+  {
+    name: "pong",
+    handlers: require("./dom-handlers.js")
+  }
 )

@@ -13,7 +13,7 @@ class EchoKeys extends DomActor {
     this.status = []
   }
   render (value) {
-    console.log("event "+value)
+    console.log("event " + value)
     if (value !== undefined) {
       this.status.push(<li>{value}</li>)
     }

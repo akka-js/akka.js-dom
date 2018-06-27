@@ -13,7 +13,7 @@ class RootNode extends DomActor {
     this.spawn(new Node(1))
   }
   render () {
-    return <div></div>
+    return <div />
   }
 }
 
@@ -29,9 +29,9 @@ class Node extends DomActor {
     )
   }
   render () {
-    return <ul className="tree">{[
-      Array(this.level - 1).fill().map(() => { return <li>{this.level}</li> } ),
-      <li className="last">{this.level}</li>
+    return <ul className='tree'>{[
+      Array(this.level - 1).fill().map(() => { return <li>{this.level}</li> }),
+      <li className='last'>{this.level}</li>
     ]}</ul>
   }
   receive (msg) {

@@ -4,6 +4,8 @@ const diff = require("virtual-dom/diff")
 const toJson = require("vdom-as-json").toJson
 const serializePatch = require("vdom-serialized-patch/serialize")
 
+const { LogLevel } = require("./log")
+
 const systems = new Map()
 
 /* initialization is location aware local / worker / sharedworker */
@@ -315,42 +317,35 @@ class ConnectedChannel extends ChannelClient {
   operative (msg) { }
 }
 
-// check levels consistency
-const LogLevel = {
-  off:      10,
-  error:    3,
-  warning:  2,
-  info:     1,
-  debug:    0
-}
-
-if (Object.freeze) { Object.freeze(LogLevel) }
-
-const LogLevelLiterals = [
-  "DEBUG",
-  "INFO",
-  "WARNING",
-  "ERROR",
-  "UNDEFINED",
-  "UNDEFINED",
-  "UNDEFINED",
-  "UNDEFINED",
-  "UNDEFINED",
-  "UNDEFINED",
-  "OFF"
-]
-
 class Logger {
   constructor (system, level) {
     this.logger = system.spawn(new LoggerActor(level))
     this.debug = this.debug.bind(this)
-    // this.info = this.info.bind(this)
-    // this.warn = this.warn.bind(this)
-    // this.error = this.error.bind(this)
+    this.info = this.info.bind(this)
+    this.warn = this.warn.bind(this)
+    this.error = this.error.bind(this)
   }
   debug (txt) {
     this.logger.tell({
       level: LogLevel.debug,
+      text: txt
+    })
+  }
+  info (txt) {
+    this.logger.tell({
+      level: LogLevel.info,
+      text: txt
+    })
+  }
+  warn (txt) {
+    this.logger.tell({
+      level: LogLevel.warning,
+      text: txt
+    })
+  }
+  error (txt) {
+    this.logger.tell({
+      level: LogLevel.error,
       text: txt
     })
   }
@@ -365,7 +360,8 @@ class LoggerActor extends akkajs.Actor {
     if (msg !== undefined) {
       if (msg.level - this.level >= 0) {
         localPostMessage({
-          log: `[${LogLevelLiterals[this.level]}] ${msg.text}`
+          log: msg.text,
+          level: msg.level
         })
       }
     }

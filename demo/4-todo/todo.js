@@ -9,7 +9,7 @@ const system = ActorSystem.create()
 
 class Input extends DomActor {
   render () {
-    return <input placeholder={"type and press ENTER"} value="" />
+    return <input placeholder={"type and press ENTER"} value='' />
   }
   events () {
     return { "keyup": domHandlers.getValue }
@@ -28,9 +28,9 @@ class Elem extends DomActor {
     this.text = text
   }
   render () {
-    return <li style="margin:2px;">{[
+    return <li style='margin:2px;'>{[
       this.text,
-      <button style="margin-left:10px;">X</button>
+      <button style='margin-left:10px;'>X</button>
     ]}</li>
   }
   events () {

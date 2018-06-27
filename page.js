@@ -6,6 +6,8 @@ const createElement = require("virtual-dom/create-element")
 const fromJson = require("vdom-as-json").fromJson
 const applyPatch = require("vdom-serialized-patch/patch")
 
+const { LogLevel } = require("./log")
+
 const workers = new Map()
 const proxies = new Map()
 const channels = new Map()
@@ -80,7 +82,21 @@ const uiManagement = function (worker, handlers, orElse, name) {
       }
     // Logging functionality
     } else if (e.data.log !== undefined) {
-      console.log(`${name} - ${e.data.log}`)
+      const text = `[${name}] ${e.data.log}`
+      switch (e.data.level) {
+        case LogLevel.debug:
+          console.debug(text)
+          break
+        case LogLevel.info:
+          console.info(text)
+          break
+        case LogLevel.warning:
+          console.warn(text)
+          break
+        case LogLevel.error:
+          console.error(text)
+          break
+      }
     } else {
       orElse(e)
     }
@@ -91,8 +107,20 @@ const defaultUnmatchedFunction = function (e) {
   console.log("unmatched message %o", e.data)
 }
 
+const randomName = function () {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+}
+
 class UiManager {
-  constructor (worker, handlers, unmatchedFun, name) {
+  constructor (worker,
+      { name = randomName(),
+        handlers = undefined,
+        unmatchedFun = defaultUnmatchedFunction
+      } = {
+        name: randomName(),
+        handlers: undefined,
+        unmatchedFun: defaultUnmatchedFunction
+      }) {
     this.worker = worker
     this.handlers = handlers
     this.unmatchedFun = unmatchedFun

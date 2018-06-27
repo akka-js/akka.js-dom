@@ -13,6 +13,7 @@
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-react-jsx": "latest",
+    "eslint": "^5.0.1",
     "light-server": "^2.5.1",
     "webpack": "^3.5.6"
   }
