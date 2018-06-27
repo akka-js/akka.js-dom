@@ -158,14 +158,11 @@ class WorkerProxy extends akkajs.Actor {
   receive (msg) {
     if (msg !== undefined) {
       if (msg.channelOpen !== undefined) {
-        console.log("channel open")
         const child = this.spawn(new Channel(msg.channelOpen))
         this.ports.set(msg.channelOpen, child)
       } else if (msg.channelName !== undefined) {
-        console.log("channel name")
         this.ports.get(msg.channelName).tell(msg)
       } else if (msg.getChannel !== undefined) {
-        console.log("get channel")
         msg.answerTo.tell({channel: this.ports.get(msg.getChannel)})
       } else {
         localPostMessage(`unmatched proxy message ${msg}`)
@@ -184,7 +181,6 @@ class Channel extends akkajs.Actor {
     this.subscribers = []
   }
   portReceive (msg) {
-    console.log("RECEIVED FROM CHANNEL: ",msg)
     for (let sub of this.subscribers) {
       sub.tell(msg.data)
     }
@@ -196,7 +192,7 @@ class Channel extends akkajs.Actor {
     })
     this.timeout = setTimeout(() => {
       this.self().tell({timeout: true})
-    }, 10)
+    }, 100)
   }
   receive (msg) {
     if (msg !== undefined) {
@@ -221,8 +217,8 @@ class Channel extends akkajs.Actor {
       } else if (msg.subscribe !== undefined) {
         this.subscribers.push(msg.subscribe)
       } else {
-        console.log(`Channel ${this.channelOpen} received ${msg}`)
-        localPostMessage(`Channel ${this.channelOpen} received ${msg}`)
+        // console.log(`Channel ${this.channelOpen} received ${msg}`)
+        // localPostMessage(`Channel ${this.channelOpen} received ${msg}`)
         this.port.postMessage(msg)
       }
     }
@@ -265,13 +261,16 @@ class ConnectedChannel extends ChannelClient {
   constructor (proxy, channelName) {
     super(proxy, channelName)
     this.checkConnection = this.checkConnection.bind(this)
-    this.preOperative = this.preOperative.bind(this)
     this.postAvailable = this.postAvailable.bind(this)
+    this.consumeInFlight = this.consumeInFlight.bind(this)
     this.operative = this.operative.bind(this)
   }
   postConnect () {
     this.become(this.checkConnection)
-    this.channel.tell({available: true})
+    setTimeout(
+      () => this.channel.tell({available: true}),
+      10
+    )
     this.timeout = setTimeout(
       () => this.self().tell({retry: true}),
       100
@@ -279,43 +278,36 @@ class ConnectedChannel extends ChannelClient {
   }
   checkConnection (msg) {
     clearTimeout(this.timeout)
-    console.log("INNER message is ", msg)
     if (msg !== undefined) {
-      if (msg.retry) {
-        this.channel.tell({available: true})
+      if (msg.retry !== undefined) {
+        setTimeout(
+          () => this.channel.tell({available: true}),
+          10
+        )
         this.timeout = setTimeout(
           () => this.self().tell({retry: true}),
           100
         )
       } else if (msg.available !== undefined) {
-        // this.become(this.preOperative)
-        this.postAvailable()
-        this.become(this.operative)
+        this.timeout = setTimeout(
+          () => this.self().tell({noInFlight: true}),
+          100
+        )
+        this.become(this.consumeInFlight)
       }
     }
-    //   } else if (msg.available !== undefined) {
-    //     this.channel.tell({connected: true})
-    //     // setTimeout(
-    //     //   () => this.channel.tell({connected: true}),
-    //     //   50
-    //     // )
-    //     this.timeout = setTimeout(
-    //       () => this.self().tell({retry: true}),
-    //       100
-    //     )
-    //   } else if (msg.connected !== undefined) {
-    //     this.postAvailable()
-    //     this.become(this.operative)        
-    //   }
-    // }
   }
-  preOperative (msg) {
+  consumeInFlight (msg) {
     if (msg !== undefined) {
-      // TODO check why they keep retained in the queue
-      if (msg.retry || msg.available) { } else {
+      if (msg.retry !== undefined || msg.available !== undefined) { }
+      else {
+        clearTimeout(this.timeout)
         this.postAvailable()
         this.become(this.operative)
-        this.self().tell(msg)
+
+        if (msg.noInFlight === undefined) {
+          this.self().tell(msg)
+        }
       }
     }
   }
@@ -323,10 +315,69 @@ class ConnectedChannel extends ChannelClient {
   operative (msg) { }
 }
 
+// check levels consistency
+const LogLevel = {
+  off:      10,
+  error:    3,
+  warning:  2,
+  info:     1,
+  debug:    0
+}
+
+if (Object.freeze) { Object.freeze(LogLevel) }
+
+const LogLevelLiterals = [
+  "DEBUG",
+  "INFO",
+  "WARNING",
+  "ERROR",
+  "UNDEFINED",
+  "UNDEFINED",
+  "UNDEFINED",
+  "UNDEFINED",
+  "UNDEFINED",
+  "UNDEFINED",
+  "OFF"
+]
+
+class Logger {
+  constructor (system, level) {
+    this.logger = system.spawn(new LoggerActor(level))
+    this.debug = this.debug.bind(this)
+    // this.info = this.info.bind(this)
+    // this.warn = this.warn.bind(this)
+    // this.error = this.error.bind(this)
+  }
+  debug (txt) {
+    this.logger.tell({
+      level: LogLevel.debug,
+      text: txt
+    })
+  }
+}
+
+class LoggerActor extends akkajs.Actor {
+  constructor (level) {
+    super()
+    this.level = level
+  }
+  receive (msg) {
+    if (msg !== undefined) {
+      if (msg.level - this.level >= 0) {
+        localPostMessage({
+          log: `[${LogLevelLiterals[this.level]}] ${msg.text}`
+        })
+      }
+    }
+  }
+}
+
 module.exports = {
   DomActor,
   localPort,
   WorkerProxy,
   ChannelClient,
-  ConnectedChannel
+  ConnectedChannel,
+  LogLevel,
+  Logger
 }

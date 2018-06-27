@@ -78,13 +78,16 @@ const uiManagement = function (worker, handlers, orElse, name) {
           }
         }, [channel.port1])
       }
+    // Logging functionality
+    } else if (e.data.log !== undefined) {
+      console.log(`${name} - ${e.data.log}`)
     } else {
       orElse(e)
     }
   }
 }
 
-const defaultUnamtchedFunction = function (e) {
+const defaultUnmatchedFunction = function (e) {
   console.log("unmatched message %o", e.data)
 }
 
@@ -95,7 +98,7 @@ class UiManager {
     this.unmatchedFun = unmatchedFun
     this.name = name
     if (unmatchedFun === undefined) {
-      this.unmatchedFun = defaultUnamtchedFunction
+      this.unmatchedFun = defaultUnmatchedFunction
     }
     if (worker instanceof SharedWorker) {
       this.worker.port.onmessage = uiManagement(this.worker.port, this.handlers, this.unmatchedFun, this.name)
@@ -114,5 +117,5 @@ class UiManager {
 
 module.exports = {
   UiManager,
-  defaultUnamtchedFunction
+  defaultUnmatchedFunction
 }

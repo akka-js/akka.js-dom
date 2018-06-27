@@ -1,6 +1,7 @@
 /** @jsx h */
 const akkajs = require("akkajs")
-const { localPort, WorkerProxy, ChannelClient, ConnectedChannel} = require("../../work")
+const { localPort, WorkerProxy, ConnectedChannel } = require("../../work")
+const { PingPongUI } = require("./pingpongui")
 
 const system = akkajs.ActorSystem.create("pong")
 
@@ -8,13 +9,10 @@ const proxy = system.spawn(new WorkerProxy())
 
 class PingChannel extends ConnectedChannel {
   postAvailable () {
-    this.count = 0
+    this.ui = this.spawn(new PingPongUI("Pong", this.channel))
   }
   operative (msg) {
-    // if (msg != undefined && msg instanceof String && msg.startsWith("PING")) {
-      this.channel.tell("PONG " + this.count)
-      this.count += 1
-    // }
+    this.ui.tell(msg)
   }
 }
 

@@ -2,7 +2,6 @@ const path = require("path")
 module.exports = {
   entry: {
     main: "./main.js",
-    pingpong: "./pingpong.js",
     ping: "./ping.js",
     pong: "./pong.js"
   },
