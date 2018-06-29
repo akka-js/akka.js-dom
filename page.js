@@ -57,7 +57,6 @@ const uiManagement = function (worker, handlers, orElse, name) {
     } else if (e.data.proxyRegistration !== undefined) {
       proxies.set(name, e.data.id)
     } else if (e.data.channelOpen !== undefined) {
-
       if (channels.has(name + e.data.channelOpen)) {
         const channel = channels.get(name + e.data.channelOpen)
 
@@ -71,7 +70,7 @@ const uiManagement = function (worker, handlers, orElse, name) {
       } else {
         const channel = new MessageChannel()
         channels.set(e.data.channelOpen + name, channel)
-  
+
         worker.postMessage({
           id: e.data.id,
           value: {
@@ -84,18 +83,18 @@ const uiManagement = function (worker, handlers, orElse, name) {
     } else if (e.data.log !== undefined) {
       const text = `[${name}] ${e.data.log}`
       switch (e.data.level) {
-        case LogLevel.debug:
-          console.debug(text)
-          break
-        case LogLevel.info:
-          console.info(text)
-          break
-        case LogLevel.warning:
-          console.warn(text)
-          break
-        case LogLevel.error:
-          console.error(text)
-          break
+      case LogLevel.debug:
+        console.debug(text)
+        break
+      case LogLevel.info:
+        console.info(text)
+        break
+      case LogLevel.warning:
+        console.warn(text)
+        break
+      case LogLevel.error:
+        console.error(text)
+        break
       }
     } else {
       orElse(e)
@@ -113,14 +112,14 @@ const randomName = function () {
 
 class UiManager {
   constructor (worker,
-      { name = randomName(),
-        handlers = undefined,
-        unmatchedFun = defaultUnmatchedFunction
-      } = {
-        name: randomName(),
-        handlers: undefined,
-        unmatchedFun: defaultUnmatchedFunction
-      }) {
+    { name = randomName(),
+      handlers = undefined,
+      unmatchedFun = defaultUnmatchedFunction
+    } = {
+      name: randomName(),
+      handlers: undefined,
+      unmatchedFun: defaultUnmatchedFunction
+    }) {
     this.worker = worker
     this.handlers = handlers
     this.unmatchedFun = unmatchedFun

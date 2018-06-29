@@ -1,10 +1,13 @@
 const path = require("path")
+// const webpack = require('webpack')
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+
 module.exports = {
   entry: {
     main: "./main.ts",
     logging: "./logging.ts"
   },
-  devtool: 'inline-source-map',
+  // devtool: 'inline-source-map',
   mode: 'production',
   output: {
     path: path.join(__dirname, "js"),
@@ -29,3 +32,5 @@ module.exports = {
     ]
   }
 }
+
+

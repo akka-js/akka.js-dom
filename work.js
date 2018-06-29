@@ -238,13 +238,13 @@ class ChannelClient extends akkajs.Actor {
   postConnect () { }
   preStart () {
     this.proxy.tell({
-      channelOpen: this.channelName,
+      channelOpen: this.channelName
     })
     setTimeout(
       () => this.proxy.tell({
         getChannel: this.channelName,
         answerTo: this.self()
-        }),
+      }),
       0
     )
   }
@@ -301,8 +301,7 @@ class ConnectedChannel extends ChannelClient {
   }
   consumeInFlight (msg) {
     if (msg !== undefined) {
-      if (msg.retry !== undefined || msg.available !== undefined) { }
-      else {
+      if (msg.retry !== undefined || msg.available !== undefined) { } else {
         clearTimeout(this.timeout)
         this.postAvailable()
         this.become(this.operative)

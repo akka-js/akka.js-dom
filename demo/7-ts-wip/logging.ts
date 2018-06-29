@@ -18,6 +18,9 @@ class Example extends Actor {
 
 const actor = system.spawn(new Example())
 
-actor.tell("CIAO")
+setTimeout(
+  () => actor.tell("CIAO"),
+  1000
+)
 
 export { localPort } from "../../work"
