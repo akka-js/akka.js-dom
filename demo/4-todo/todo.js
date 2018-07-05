@@ -1,7 +1,7 @@
 /** @jsx h */
 const h = require("virtual-dom/h")
 const { ActorSystem } = require("akkajs")
-const { DomActor, localPort } = require("akkajs-dom/work")
+const { DomActor, localPort } = require("../../work")
 
 const domHandlers = require("./dom-handlers.js")
 
@@ -9,7 +9,7 @@ const system = ActorSystem.create()
 
 class Input extends DomActor {
   render () {
-    return <input placeholder={"type and press ENTER"} value='' />
+    return <input placeholder="type and press ENTER" value=""></input>
   }
   events () {
     return { "keyup": domHandlers.getValue }

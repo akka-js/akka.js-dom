@@ -1,7 +1,7 @@
 /** @jsx h */
 const h = require("virtual-dom/h")
 const { ActorSystem } = require("akkajs")
-const { DomActor, localPort } = require("akkajs-dom/work")
+const { DomActor, localPort } = require("../../work")
 
 const system = ActorSystem.create()
 

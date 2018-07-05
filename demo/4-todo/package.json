@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "author": "Andrea Peruffo",
   "license": "MIT",
-  "dependencies": {
-    "akkajs-dom": "latest"
-  },
   "scripts": {
     "start": "webpack --watch",
     "build": "webpack",

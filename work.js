@@ -199,7 +199,7 @@ class Channel extends akkajs.Actor {
   receive (msg) {
     if (msg !== undefined) {
       if (msg.timeout !== undefined) {
-        console.log("retry!")
+        // console.log("retry!")
         this.preStart()
       } else if (msg.channelName !== undefined) {
         clearTimeout(this.timeout)
