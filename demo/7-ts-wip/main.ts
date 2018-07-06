@@ -1,13 +1,13 @@
 import { UiManager } from "../../page"
 
-import * as loggingModule from "./logging"
+import * as exampleModule from "./example"
 
 new UiManager(
-  loggingModule,
+  exampleModule,
   { name: "page" }
 )
 
 new UiManager(
-  new Worker("./js/logging.out.js"),
+  new Worker("./js/example.out.js"),
   { name: "worker" }
 )

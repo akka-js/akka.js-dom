@@ -74,12 +74,16 @@ class DomActor extends akkajs.Actor {
 
     // filled by user
     // dom management
-    this.render = this.render.bind(this)
+    if (this.render) {
+      this.render = this.render.bind(this)
+    }
     this.events = this.events.bind(this)
     this.postMount = this.postMount.bind(this)
     this.postUnmount = this.postUnmount.bind(this)
     // actor management
-    this.receive = this.receive.bind(this)
+    if (this.receive) {
+      this.receive = this.receive.bind(this)
+    }
     this.preStart = this.preStart.bind(this)
     this.postStop = this.postStop.bind(this)
 

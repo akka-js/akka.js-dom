@@ -5,9 +5,8 @@ const path = require("path")
 module.exports = {
   entry: {
     main: "./main.ts",
-    logging: "./logging.ts"
+    example: "./example.tsx"
   },
-  // devtool: 'inline-source-map',
   mode: 'production',
   output: {
     path: path.join(__dirname, "js"),
@@ -20,14 +19,12 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /(\.js$|\.ts(x?)$)/,
         exclude: /node_modules/,
-        loader: "babel-loader"
-      },
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
+        use: [
+          { loader: 'babel-loader' },
+          { loader: 'ts-loader' }
+        ]
       }
     ]
   }

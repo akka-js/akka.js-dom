@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "outDir": "./js/",
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "sourceMap": true,
     "module": "es6",
     "target": "es5",
     "jsx": "preserve",
     "allowJs": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
   "include": ["./*", "../../*"]
 }
