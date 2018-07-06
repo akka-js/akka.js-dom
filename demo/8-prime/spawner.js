@@ -14,7 +14,7 @@ class Spawner extends DomActor {
     super("root")
   }
   postMount () {
-    system.spawn(new PrimeUI())
+    system.spawn(new PrimeUI("Get Primes [Page] - Don't press!!!"))
   }
   render () {
     return <button>Spawn!</button>

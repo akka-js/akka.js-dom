@@ -6,8 +6,9 @@ const { DomActor } = require("../../work")
 const domHandlers = require("./dom-handlers.js")
 
 class PrimeUI extends DomActor {
-  constructor () {
+  constructor (text) {
     super("root")
+    this.text = text
   }
   render (value) {
     return <div className='box'>{[
@@ -15,7 +16,7 @@ class PrimeUI extends DomActor {
     ]}</div>
   }
   postMount () {
-    this.spawn(new StartButton())
+    this.spawn(new StartButton(this.text))
   }
   receive (msg) {
     this.update(msg)
@@ -23,9 +24,13 @@ class PrimeUI extends DomActor {
 }
 
 class StartButton extends DomActor {
+  constructor (text) {
+    super()
+    this.text = text
+  }
   render () {
     if (this.status === undefined || this.status === false) {
-      return <button>Get primes</button>
+      return <button>{this.text}</button>
     } else {
       return <div />
     }
