@@ -129,13 +129,10 @@ test.cb("Test demo: 4-todo", t => {
           t.fail()
           t.end()
         })
-
     })
     .catch(error => {
       console.error(error)
       t.fail()
       t.end()
     })
-  
-  
 })

@@ -16,7 +16,7 @@
     "build": "webpack",
     "prepublish": "webpack",
     "fmt": "eslint --fix *.js",
-    "buildDemo": "foreach -g 'demo/*' -x \"cd #{dir}/#{name} && npm install && npm run build\"",
+    "buildDemo": "foreach -g 'demo/*' -x \"cd #{dir}/#{name} && npm install && npm run build\" > /dev/null",
     "test": "ava --verbose --fail-fast --serial --timeout=30s"
   },
   "devDependencies": {
