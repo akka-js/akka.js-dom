@@ -15,9 +15,11 @@
     "start": "webpack --watch",
     "build": "webpack",
     "prepublish": "webpack",
-    "fmt": "eslint --fix *.js"
+    "fmt": "eslint --fix *.js",
+    "test": "ava --verbose --fail-fast --serial --timeout=30s"
   },
   "devDependencies": {
+    "ava": "^1.0.0-beta.6",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-react-jsx": "latest",
@@ -30,6 +32,10 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-react": "^7.4.0",
     "eslint-plugin-standard": "^3.0.1",
+    "express": "^4.16.3",
+    "nightmare": "^3.0.1",
+    "npm": "^6.1.0",
+    "serve-static": "^1.13.2",
     "webpack": "^3.5.6"
   },
   "repository": {

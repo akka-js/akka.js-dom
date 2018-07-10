@@ -1,3 +1,4 @@
 node_modules
 akkajs-dom-*.tgz
 js/*.js
+package-lock.json
