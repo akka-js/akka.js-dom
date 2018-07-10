@@ -11,5 +11,5 @@ install:
   - npm install
 
 script:
-  - npm buildDemo
+  - npm run buildDemo
   - npm test
