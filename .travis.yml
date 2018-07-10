@@ -7,13 +7,12 @@ install:
   - npm install
 
 script:
-  - cd demo
-  - (cd 1-simple && npm install && npm run build)
-  - (cd 2-events && npm install && npm run build)
-  - (cd 3-hierarchy && npm install && npm run build)
-  - (cd 4-todo && npm install && npm run build)
-  - (cd 5-pingpong && npm install && npm run build)
-  - (cd 6-logging && npm install && npm run build)
-  - (cd 7-ts && npm install && npm run build)
-  - (cd 8-prime && npm install && npm run build)
+  - (cd demo/1-simple && npm install && npm run build)
+  - (cd demo/2-events && npm install && npm run build)
+  - (cd demo/3-hierarchy && npm install && npm run build)
+  - (cd demo/4-todo && npm install && npm run build)
+  - (cd demo/5-pingpong && npm install && npm run build)
+  - (cd demo/6-logging && npm install && npm run build)
+  - (cd demo/7-ts && npm install && npm run build)
+  - (cd demo/8-prime && npm install && npm run build)
   - npm test
