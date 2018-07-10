@@ -7,18 +7,20 @@
   "main": "./js/main.out.js",
   "dependencies": {
     "akkajs": "latest",
-    "virtual-dom": "latest",
     "vdom-as-json": "latest",
-    "vdom-serialized-patch": "latest"
+    "vdom-serialized-patch": "latest",
+    "virtual-dom": "latest"
   },
   "scripts": {
     "start": "webpack --watch",
     "build": "webpack",
     "prepublish": "webpack",
     "fmt": "eslint --fix *.js",
+    "buildDemo": "foreach -g 'demo/*' -x \"cd #{dir}/#{name} && npm run build\"",
     "test": "ava --verbose --fail-fast --serial --timeout=30s"
   },
   "devDependencies": {
+    "foreach-cli": "^1.8.0",
     "ava": "^1.0.0-beta.6",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
