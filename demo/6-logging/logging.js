@@ -5,7 +5,7 @@ const { Logger, LogLevel, localPort } = require("../../work")
 
 const system = ActorSystem.create()
 
-const log = new Logger(system, LogLevel.info)
+const log = new Logger(system, LogLevel.debug)
 
 log.debug("debug log - not shown")
 log.info("info log")

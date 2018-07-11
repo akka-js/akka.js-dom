@@ -203,7 +203,6 @@ class Channel extends akkajs.Actor {
   receive (msg) {
     if (msg !== undefined) {
       if (msg.timeout !== undefined) {
-        // console.log("retry!")
         this.preStart()
       } else if (msg.channelName !== undefined) {
         clearTimeout(this.timeout)
@@ -223,8 +222,6 @@ class Channel extends akkajs.Actor {
       } else if (msg.subscribe !== undefined) {
         this.subscribers.push(msg.subscribe)
       } else {
-        // console.log(`Channel ${this.channelOpen} received ${msg}`)
-        // localPostMessage(`Channel ${this.channelOpen} received ${msg}`)
         this.port.postMessage(msg)
       }
     }
@@ -361,7 +358,7 @@ class LoggerActor extends akkajs.Actor {
   }
   receive (msg) {
     if (msg !== undefined) {
-      if (msg.level - this.level >= 0) {
+      if ((msg.level - this.level) >= 0) {
         localPostMessage({
           log: msg.text,
           level: msg.level

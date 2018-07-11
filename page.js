@@ -95,6 +95,8 @@ const uiManagement = function (worker, handlers, orElse, name) {
       case LogLevel.error:
         console.error(text)
         break
+      default:
+        console.log(text)
       }
     } else {
       orElse(e)
