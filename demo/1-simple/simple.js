@@ -19,6 +19,8 @@ class Clock extends DomActor {
 
 const actor = system.spawn(new Clock())
 
+actor.tell(new Date().toString())
+
 setInterval(
   () => {
     actor.tell(new Date().toString())
