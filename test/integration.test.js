@@ -137,7 +137,7 @@ test.cb("Test demo: 4-todo", t => {
     })
 })
 
-test.cb.only("Test demo: 5-pingpong", t => {
+test.cb("Test demo: 5-pingpong", t => {
   t.plan(2)
 
   const button1Selector = '#root div:nth-child(1) button'
