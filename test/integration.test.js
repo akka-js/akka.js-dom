@@ -14,13 +14,13 @@ test.before(t => {
   server = app.listen(4321)
 
   const Nightmare = require('nightmare')
-  nightmare = Nightmare()
-  // nightmare = Nightmare({
-  //   show: true
-  // })
+  // nightmare = Nightmare()
+  nightmare = Nightmare({
+    show: true
+  })
 })
 
-test.after(t => {
+test.after("cleanup", t => {
   server.close()
   server = undefined
 })
@@ -129,6 +129,41 @@ test.cb("Test demo: 4-todo", t => {
           t.fail()
           t.end()
         })
+    })
+    .catch(error => {
+      console.error(error)
+      t.fail()
+      t.end()
+    })
+})
+
+test.cb.only("Test demo: 5-pingpong", t => {
+  t.plan(2)
+
+  const button1Selector = '#root div:nth-child(1) button'
+  const button2Selector = '#root div:nth-child(2) button'
+  const text1Selector = '#root div:nth-child(1) p'
+  const text2Selector = '#root div:nth-child(2) p'
+  nightmare
+    .goto('http://localhost:4321/5-pingpong/index.html')
+    .wait(button1Selector)
+    .wait(button2Selector)
+    .wait(text1Selector)
+    .wait(text2Selector)
+    .click(button1Selector)
+    .click(button2Selector)
+    .click(button2Selector)
+    .wait(100)
+    .evaluate((text1Selector, text2Selector) => {
+      return {
+        text1: document.querySelector(text1Selector).innerText,
+        text2: document.querySelector(text2Selector).innerText
+      }
+    }, text1Selector, text2Selector)
+    .then(texts => {
+      t.is(texts.text1, "received 2 pings")
+      t.is(texts.text2, "received 1 pings")
+      t.end()
     })
     .catch(error => {
       console.error(error)
