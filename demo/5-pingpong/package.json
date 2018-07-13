@@ -1,12 +1,12 @@
 {
-  "name": "akkajs_dom_simple",
+  "name": "akkajs_dom_pingpong",
   "version": "1.0.0",
   "author": "Andrea Peruffo",
   "license": "MIT",
   "scripts": {
     "start": "webpack --watch",
     "build": "webpack",
-    "serve": "lite-server",
+    "serve": "light-server -s . -p 3000",
     "fmt": "eslint --fix *.js"
   },
   "devDependencies": {
@@ -14,7 +14,7 @@
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-react-jsx": "latest",
     "eslint": "^5.0.1",
-    "lite-server": "^2.3.0",
+    "light-server": "^2.5.1",
     "webpack": "^3.5.6"
   }
 }

@@ -12,6 +12,13 @@ ___Featuring:___
   - Location transparency for application
   - Real parallelism (multithread via Workers)
   - Fully asynchronous
+  - Easy inter-workers communication
+
+## Install
+
+```bash
+npm install --save akkajs-dom
+```
 
 ## Quick start
 
@@ -24,24 +31,23 @@ npm run build
 npm run serve
 ```
 
-and you will get the result.
+and you will get the result from a modern browser at `http://localhost:3000`.
 
-The examples are intended to be considered as "live" and you are encouraged to play with them!
+The examples are intended to be considered "live" and you are encouraged to play with them!
 
 ## Overview
 
-***We assume you have some understanding of basic Akka.Js concepts.***
+***We assume you have some understanding of basic Akka.Js concepts. Otherwise take first the [Akka.js Quick Start](https://github.com/akka-js/akka.js_bindings#quick-start)***
 
 Akka.Js DOM has 2 core components:
 
   - `UiManager`
   - `DomActor`
 
-and they are intended to be kept separated (in different compilation units possibly).
-
 ### UiManager
 
-`UiManager` is the minimal "in-page" interface, with an extremely small footprint that operates on the DOM, it has to be loaded straight in page and the constructor accept, as for now, 3 possible objects:
+`UiManager` is the minimal "in-page" driver, with an extremely small footprint that manage operations with the DOM, it __needs__ to be loaded straight in page.
+This hook accept, as for now, 3 possible kind of objects to bind to the page:
 
   1. a module that exports a `localPort`, it's purpose is mainly for debug or for few elements that needs to be displayed asap in page
   2. a `Worker`
@@ -49,19 +55,39 @@ and they are intended to be kept separated (in different compilation units possi
 
 all you need to do is to instantiate one `UiManager` per component you have to visualize in page.
 
-example:
+import it as:
 ```javascript
 const { UiManager } = require("akkajs-dom/page")
+```
 
+and then one of:
+```javascript
 new UiManager(
   require("./simple.js") // for debugging purposes
-  // new Worker("./js/simple.out.js")
-  // new SharedWorker("./js/simple.out.js")
+)
+```
+```javascript
+new UiManager(
+  new Worker("./js/simple.out.js")
+)
+```
+```javascript
+new UiManager(
+  new SharedWorker("./js/simple.out.js")
 )
 ```
 
-A `UiManager` constructor accepts a second optional argument that is module containing functions that have to be run on events, the returning value of these functions has to be serializable since it will be sent as a message to the relative `Actor`.
 
+A `UiManager` constructor accepts a second optional argument.
+```javascript
+{
+  name: componentName, // default to a random ID
+  handlers: handlersModule, // module containing functions that have to be run on events, default to undefined
+  unmatchedFun: defaultUnmatchedFunction // what to do if an unhandled message is received in page, default to log it
+}
+```
+
+Functions in `handlersModule` should return results in a serializable format (e.g. Json, string, ...) since results will be propagated through a `MessageChannel`.
 
 example:
 ```javascript
@@ -69,7 +95,10 @@ const { UiManager } = require("akkajs-dom/page")
 
 new UiManager(
   new Worker("./js/simple.out.js"),
-  require("dom-handlers.js")
+  {
+    name: "simple",
+    handlers: require("dom-handlers.js")
+  }
 )
 ```
 
@@ -107,9 +136,9 @@ ___Methods___
 |Method|Description|
 |-------|----------|
 |`this.render(value)`| Will return the content to be visualized |
-|`this.postMount()`| Is an hook triggered after the element is mounted in page ___NOTE:___ 'preStart' is reserved |
-|`this.postUnmount()`| Is an hook triggered after the element is unmounted from the page ___NOTE:___ 'postStop' is reserved |
-|`this.events(map)`| Should return a map of the events to be intercepted on the relative DOM the format of each entry is `eventName -> eventFunction` please note that this functions should be accessible by both `UiManager` and `DomActor` |
+|`this.postMount()`| Is an hook triggered after the element is mounted in page ___NOTE:___ `preStart` is reserved |
+|`this.postUnmount()`| Is an hook triggered after the element is unmounted from the page ___NOTE:___ `postStop` is reserved |
+|`this.events(map)`| Should return a map of the events to be intercepted on the relative DOM elemnt. The format of each entry is `eventName -> eventFunction` please note functions used here should be accessible by both `UiManager` and `DomActor` |
 
 there are also some methods intended to be used from within the `Actor` itself:
 
@@ -119,3 +148,103 @@ ___Methods___
 |-------|----------|
 |`this.update(value)`| Used to update the status, will trigger a `render` call containing the specified `value` |
 |`this.register(eventName, eventFunction)`| Low level interface to register DOM events, functions should be accessible from `UiManager` and `DomActor` (prefer the `events` notation) |
+
+### Logging
+
+Given the fact that you can spawn your `DomActor`s in environments where `console.log` is not available we provide a simple interface for having a cross compatible logging system.
+
+the mandatory import will looks like:
+```javascript
+const { Logger, LogLevel } = require("akkajs-dom/work")
+```
+
+to have a Logger you should have already an ActorSystem spawned
+
+```javascript
+const log = new Logger(actorSystem, LogLevel.<desiredlevel>)
+```
+
+available logging levels are:
+```javascript
+{
+  off,
+  error,
+  warning,
+  info,
+  debug
+}
+```
+
+and finally you can use your logger:
+```javascript
+log.debug(text)
+log.info(text)
+log.warn(text)
+log.error(text)
+```
+
+### Inter-Communication
+
+__[in-development]__
+
+Akka.Js DOM provides you a common way to communicate peer-to-peer in between different components.
+
+The preferred way is to open a specular bidirectional communication channel.
+
+In page you spawn to `UIManager` and be sure to provide a `name` option.
+```javascript
+const { UiManager } = require("akkajs-dom/page")
+
+new UiManager(
+  new SharedWorker("./js/ping.out.js"),
+  {
+    name: "ping",
+    handlers: require("./dom-handlers.js")
+  }
+)
+
+new UiManager(
+  new Worker("./js/pong.out.js"),
+  {
+    name: "pong",
+    handlers: require("./dom-handlers.js")
+  }
+)
+```
+
+Now in the two workers you can:
+```javascript
+// Spawn a proxy actor to make this worker available for external communication
+const proxy = system.spawn(new WorkerProxy())
+
+// define a "ConnectedChannel" Actor that will connect to another Worker
+class PongChannel extends ConnectedChannel {
+  postAvailable () {
+    // triggered when the bounded worker is available
+    this.channel
+  }
+  operative (msg) {
+    // behavior available for user
+  }
+}
+
+system.spawn(new PongChannel(proxy, "pong")) // the name here is the channel we wanna connect
+```
+
+_TODO:_ describe the full API.
+
+## Compile
+
+To compile and build this project simply:
+
+```bash
+npm install
+npm run build
+```
+
+IT tests are based on the demo projects:
+
+```bash
+npm run buildDemo # needed only once
+npm test
+```

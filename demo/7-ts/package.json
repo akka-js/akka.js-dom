@@ -1,0 +1,23 @@
+{
+  "name": "akkajs_dom_ts",
+  "version": "1.0.0",
+  "author": "Andrea Peruffo",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack --watch",
+    "build": "webpack",
+    "serve": "light-server -s . -p 3000",
+    "fmt": "eslint --fix *.js"
+  },
+  "devDependencies": {
+    "babel-loader": "^7.1.5",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "eslint": "^5.0.1",
+    "light-server": "^2.5.1",
+    "ts-loader": "^4.4.1",
+    "typescript": "^2.9.2",
+    "webpack": "^4.12.2",
+    "webpack-bundle-analyzer": "^2.13.1",
+    "webpack-cli": "^3.0.8"
+  }
+}

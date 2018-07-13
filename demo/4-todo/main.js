@@ -1,6 +1,7 @@
-const { UiManager } = require("akkajs-dom/page")
+const { UiManager } = require("../../page")
 
 new UiManager(
+  // require("./todo.js"),
   new Worker("./js/todo.out.js"),
-  require("./dom-handlers.js")
+  { handlers: require("./dom-handlers.js") }
 )
