@@ -26,7 +26,7 @@ class EchoKeys extends DomActor {
     return { "click": domHandlers.click }
   }
   receive (msg) {
-    this.update(msg)
+    this.update(msg + " received")
   }
 }
 
