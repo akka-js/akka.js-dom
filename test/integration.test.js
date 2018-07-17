@@ -67,7 +67,7 @@ test.cb("Test demo: 2-events", t => {
       return document.querySelector(elemSelector).innerText
     }, elemSelector)
     .then(text => {
-      t.is(text, "click")
+      t.is(text, "click received")
       t.end()
     })
     .catch(error => {
